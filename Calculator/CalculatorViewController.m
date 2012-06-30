@@ -80,7 +80,7 @@
     NSString *operationString = sender.currentTitle;
     self.display.text = [NSString stringWithFormat:@"%g",[self.brain performOperation:operationString]];
     self.historyString = [self.historyString stringByAppendingFormat:@"%@ ", operationString];
-    self.history.text = [self.historyString stringByAppendingString:@" ="];
+    self.history.text = [self.historyString stringByAppendingString:@"="];
 }
 
 - (IBAction)enterPressed {

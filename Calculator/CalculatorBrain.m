@@ -67,6 +67,10 @@
         result = cos([self popOperand]);
     } else if ([@"+/-" isEqualToString:operation]) {
         result = [self popOperand] * -1;
+    } else if ([@"log" isEqualToString:operation]) {
+        result = log([self popOperand]);
+    } else if ([@"ℯ" isEqualToString:operation]) {
+        result = exp([self popOperand]);
     }
     
     // push the result back up the stack
