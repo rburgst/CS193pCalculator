@@ -49,7 +49,14 @@
     } else if ([@"*" isEqualToString:operation]) {
         result = [self popOperand] * [self popOperand];
     } else if ([@"/" isEqualToString:operation]) {
-        result = [self popOperand] / [self popOperand];        
+        double o1 = [self popOperand];
+        double o2 = [self popOperand];
+        // protect against divide by zero
+        if (o2 == 0) {
+            result = 0;
+        } else {
+            result = o1 / o2;
+        }
     } else if ([@"sqrt" isEqualToString:operation]) {
         result = sqrt([self popOperand]);
     } else if ([@"π" isEqualToString:operation]) {
