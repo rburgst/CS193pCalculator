@@ -221,7 +221,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="operationPressed:" destination="2" eventType="touchUpInside" id="kGO-wM-DG0"/>
+                                    <action selector="backspacePressed:" destination="2" eventType="touchUpInside" id="6WX-AG-l6j"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="zvg-FO-PGu">
@@ -312,7 +312,6 @@
                                 </state>
                                 <connections>
                                     <action selector="clearPressed:" destination="2" eventType="touchUpInside" id="KgD-8w-Zo8"/>
-                                    <action selector="enterPressed" destination="2" eventType="touchUpInside" id="mRc-Su-kDU"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="cci-De-w7K">
@@ -414,7 +413,7 @@
                     </connections>
                 </viewController>
             </objects>
-            <point key="canvasLocation" x="214" y="37"/>
+            <point key="canvasLocation" x="66" y="-217"/>
         </scene>
     </scenes>
     <classes>

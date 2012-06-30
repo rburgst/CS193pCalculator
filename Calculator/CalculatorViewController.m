@@ -111,5 +111,18 @@
     self.history.text = @"";
 }
 
+- (IBAction)backspacePressed:(UIButton *)sender {
+    NSString *currentString = self.display.text;
+    if ([currentString length] > 0 && ![currentString isEqualToString:@"0"]) {
+        NSString *newText = [currentString substringToIndex:[currentString length] - 1];
+        
+        // prevent an empty string, show the 0 instead
+        if ([newText length] == 0) {
+            newText = @"0";
+        }
+        self.display.text = newText;
+    }
+}
+
 
 @end
