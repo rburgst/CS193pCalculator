@@ -21,6 +21,7 @@
 @implementation CalculatorViewController
 
 @synthesize display = _display;
+@synthesize history = _history;
 @synthesize userIsEnteringANumber = _userIsEnteringANumber;
 @synthesize brain = _brain;
 
@@ -35,6 +36,7 @@
 - (void)viewDidUnload
 {
     [self setDisplay:nil];
+    [self setHistory:nil];
     [super viewDidUnload];
     // Release any retained subviews of the main view.
 }
@@ -70,11 +72,19 @@
     if (self.userIsEnteringANumber) {
         [self enterPressed];
     }
-    self.display.text = [NSString stringWithFormat:@"%g",[self.brain performOperation:sender.currentTitle]];
+    NSString *operationString = sender.currentTitle;
+    self.display.text = [NSString stringWithFormat:@"%g",[self.brain performOperation:operationString]];
+    self.history.text = [self.history.text stringByAppendingFormat:@"%@ ", operationString];
 }
 
 - (IBAction)enterPressed {
-    [self.brain pushOperand:[self.display.text doubleValue]];
+    double value = [self.display.text doubleValue];
+    
+    // show the result in the history
+    self.history.text = [self.history.text stringByAppendingFormat:@"%g ", value];
+    
+    // and add it to the stack
+    [self.brain pushOperand:value];
     self.userIsEnteringANumber = NO;
 }
 
@@ -98,6 +108,7 @@
     [self.brain clear];
     self.userIsEnteringANumber = NO;
     self.display.text = @"0";
+    self.history.text = @"";
 }
 
 
