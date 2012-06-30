@@ -45,6 +45,8 @@
 }
 
 
+
+
 - (CalculatorBrain*) brain 
 {
     if (!_brain) {
@@ -75,5 +77,28 @@
     [self.brain pushOperand:[self.display.text doubleValue]];
     self.userIsEnteringANumber = NO;
 }
+
+- (IBAction)invertSignPressed:(UIButton *)sender {
+    if (self.userIsEnteringANumber) {
+        // TODO for extra credit 3
+    }
+}
+
+- (IBAction)commaPressed:(UIButton *)sender {
+    if (self.userIsEnteringANumber && [self.display.text rangeOfString:@"."].location != NSNotFound) {
+            // only allow 1 comma
+        return;
+    } else {
+        // otherwise just handle it just like any other old digit.
+        [self digitPressed:sender];
+    }
+}
+
+- (IBAction)clearPressed:(UIButton *)sender {
+    [self.brain clear];
+    self.userIsEnteringANumber = NO;
+    self.display.text = @"0";
+}
+
 
 @end
