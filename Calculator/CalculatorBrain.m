@@ -65,6 +65,8 @@
         result = sin([self popOperand]);
     } else if ([@"cos" isEqualToString:operation]) {
         result = cos([self popOperand]);
+    } else if ([@"+/-" isEqualToString:operation]) {
+        result = [self popOperand] * -1;
     }
     
     // push the result back up the stack

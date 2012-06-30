@@ -13,7 +13,7 @@
 
 @property(nonatomic) BOOL userIsEnteringANumber;
 @property(nonatomic, strong) CalculatorBrain* brain;
-
+@property(nonatomic, strong) NSString* historyString;
 @end
 
 
@@ -24,7 +24,7 @@
 @synthesize history = _history;
 @synthesize userIsEnteringANumber = _userIsEnteringANumber;
 @synthesize brain = _brain;
-
+@synthesize historyString = _historyString;
 
 
 - (void)viewDidLoad
@@ -47,7 +47,12 @@
 }
 
 
-
+- (NSString*)historyString {
+    if (!_historyString) {
+        _historyString = @"";
+    }
+    return _historyString;
+}
 
 - (CalculatorBrain*) brain 
 {
@@ -74,14 +79,16 @@
     }
     NSString *operationString = sender.currentTitle;
     self.display.text = [NSString stringWithFormat:@"%g",[self.brain performOperation:operationString]];
-    self.history.text = [self.history.text stringByAppendingFormat:@"%@ ", operationString];
+    self.historyString = [self.historyString stringByAppendingFormat:@"%@ ", operationString];
+    self.history.text = [self.historyString stringByAppendingString:@" ="];
 }
 
 - (IBAction)enterPressed {
     double value = [self.display.text doubleValue];
     
     // show the result in the history
-    self.history.text = [self.history.text stringByAppendingFormat:@"%g ", value];
+    self.historyString = [self.historyString stringByAppendingFormat:@"%g ", value];
+    self.history.text = self.historyString;
     
     // and add it to the stack
     [self.brain pushOperand:value];
@@ -91,6 +98,14 @@
 - (IBAction)invertSignPressed:(UIButton *)sender {
     if (self.userIsEnteringANumber) {
         // TODO for extra credit 3
+        NSString *currentText = self.display.text;
+        if ([currentText rangeOfString:@"-"].location == 0) {
+            self.display.text = [currentText substringFromIndex:1];   
+        } else {
+            self.display.text = [@"-" stringByAppendingString:currentText];            
+        }
+    } else {
+        [self operationPressed:sender];
     }
 }
 
@@ -109,6 +124,7 @@
     self.userIsEnteringANumber = NO;
     self.display.text = @"0";
     self.history.text = @"";
+    self.historyString = @"";
 }
 
 - (IBAction)backspacePressed:(UIButton *)sender {
