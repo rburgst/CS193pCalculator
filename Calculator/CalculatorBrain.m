@@ -45,17 +45,17 @@
     if ([@"+" isEqualToString:operation]) {
         result = [self popOperand] + [self popOperand];
     } else if ([@"-" isEqualToString:operation]) {
-        result = [self popOperand] - [self popOperand];
+        result = - [self popOperand] + [self popOperand];
     } else if ([@"*" isEqualToString:operation]) {
         result = [self popOperand] * [self popOperand];
     } else if ([@"/" isEqualToString:operation]) {
         double o1 = [self popOperand];
         double o2 = [self popOperand];
         // protect against divide by zero
-        if (o2 == 0) {
+        if (o1 == 0) {
             result = 0;
         } else {
-            result = o1 / o2;
+            result = o2 / o1;
         }
     } else if ([@"sqrt" isEqualToString:operation]) {
         result = sqrt([self popOperand]);
