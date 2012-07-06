@@ -10,6 +10,7 @@
 
 @interface CalculatorBrain : NSObject
 
+- (void)pushVariable:(NSString *)variable;
 - (void)pushOperand:(double)operand;
 - (double)performOperation:(NSString *)operation;
 - (void)clear;
@@ -29,4 +30,7 @@
 // if the last thing done in the program was performOperation:, this evaluates it (recursively)
 + (double)runProgram:(id)program;
 
++ (double)runProgram:(id)program usingVariableValues:(NSDictionary *)variableValues;
+
++ (NSSet *)variablesUsedInProgram:(id)program;
 @end

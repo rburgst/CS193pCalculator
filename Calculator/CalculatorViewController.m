@@ -14,6 +14,8 @@
 @property(nonatomic) BOOL userIsEnteringANumber;
 @property(nonatomic, strong) CalculatorBrain* brain;
 @property(nonatomic, strong) NSString* historyString;
+@property(nonatomic, strong) NSDictionary *variableDict;
+
 @end
 
 
@@ -22,10 +24,11 @@
 
 @synthesize display = _display;
 @synthesize history = _history;
+@synthesize variables = _variables;
 @synthesize userIsEnteringANumber = _userIsEnteringANumber;
 @synthesize brain = _brain;
 @synthesize historyString = _historyString;
-
+@synthesize variableDict = _variableDict;
 
 - (void)viewDidLoad
 {
@@ -72,27 +75,30 @@
     }
 }
 
+- (void)updateDisplay {
+    id program = self.brain.program;
+    self.display.text = [NSString stringWithFormat:@"%g",[CalculatorBrain runProgram:program usingVariableValues:self.variableDict]];
+//    self.historyString = [self.historyString stringByAppendingFormat:@"%@ ", operationString];
+    self.history.text = [CalculatorBrain descriptionOfProgram:program];
+}
+
 - (IBAction)operationPressed:(UIButton *)sender {
     // press enter for the user to help him save time
     if (self.userIsEnteringANumber) {
         [self enterPressed];
     }
     NSString *operationString = sender.currentTitle;
-    self.display.text = [NSString stringWithFormat:@"%g",[self.brain performOperation:operationString]];
-    self.historyString = [self.historyString stringByAppendingFormat:@"%@ ", operationString];
-    self.history.text = [self.historyString stringByAppendingString:@"="];
+    [self.brain performOperation:operationString];
+    [self updateDisplay];
 }
 
 - (IBAction)enterPressed {
     double value = [self.display.text doubleValue];
-    
-    // show the result in the history
-    self.historyString = [self.historyString stringByAppendingFormat:@"%g ", value];
-    self.history.text = self.historyString;
+    self.userIsEnteringANumber = NO;
     
     // and add it to the stack
     [self.brain pushOperand:value];
-    self.userIsEnteringANumber = NO;
+    [self updateDisplay];
 }
 
 - (IBAction)invertSignPressed:(UIButton *)sender {
@@ -138,6 +144,35 @@
         }
         self.display.text = newText;
     }
+}
+
+- (IBAction)variablePressed:(UIButton *)sender {
+    [self operationPressed:sender];
+}
+
+- (IBAction)undoPressed:(UIButton *)sender {
+    [self updateDisplay];
+}
+
+- (IBAction)testPressed:(UIButton *)sender {
+    int tag = sender.tag;
+    
+    switch (tag) {
+        case 0:
+            [self setupVariablesWithX:3.0 andA:5.0 andB:4.5];
+            break;
+        case 1:
+            [self setupVariablesWithX:5.5 andA:10.0 andB:3.0];
+            break;
+        case 2:
+            [self setupVariablesWithX:1 andA:2 andB:3];
+            break;
+    }
+    [self updateDisplay];
+}
+
+- (void)setupVariablesWithX:(double) x andA:(double)a andB:(double) b {
+    self.variableDict = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:x], @"x", [NSNumber numberWithDouble:a], @"a", [NSNumber numberWithDouble:b], @"b", nil];    
 }
 
 
