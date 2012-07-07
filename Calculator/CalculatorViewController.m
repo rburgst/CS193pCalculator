@@ -155,6 +155,13 @@
 }
 
 - (IBAction)undoPressed:(UIButton *)sender {
+    if (self.userIsEnteringANumber) {
+        [self backspacePressed:sender];
+        if ([self.display.text isEqualToString:@"0"]) self.userIsEnteringANumber = NO; 
+        else return;
+    } else {
+        [self.brain popTopOff];
+    }
     [self updateDisplay];
 }
 

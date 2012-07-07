@@ -33,4 +33,7 @@
 + (double)runProgram:(id)program usingVariableValues:(NSDictionary *)variableValues;
 
 + (NSSet *)variablesUsedInProgram:(id)program;
+
+// Pops the top off the current program 
+- (id)popTopOff;
 @end

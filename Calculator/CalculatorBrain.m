@@ -56,6 +56,13 @@
     [self.programStack addObject:[NSNumber numberWithDouble:operand]];
 }
 
+
+- (id)popTopOff {
+    id topOfStack = [self.programStack lastObject];
+    if (topOfStack) [self.programStack removeLastObject];
+    return topOfStack;
+}
+
 - (id) program {
     return [self.programStack copy];
 }
@@ -124,14 +131,6 @@
     }
     
     return result;
-}
-
-
-
-+ (id)popFromProgram:(NSMutableArray *)stack {
-    id topOfStack = [stack lastObject];
-    if (topOfStack) [stack removeLastObject];
-    return topOfStack;
 }
 
 + (void) pushToProgram:(NSMutableArray *)stack object:(id)obj {
