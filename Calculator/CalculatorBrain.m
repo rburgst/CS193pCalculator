@@ -93,7 +93,6 @@
 + (id)popOperandOffProgramStack:(NSMutableArray *)stack usingVariableValues:(NSDictionary *)variableValues
 {
     double result = 0;
-    NSString *error;
     
     id topOfStack = [stack lastObject];
     if (topOfStack) {
@@ -158,8 +157,7 @@
                     } else if ([@"/" isEqualToString:operation]) {
                         // protect against divide by zero
                         if (o1 == 0) {
-                            error = @"Div by Zero";
-                            result = 0;
+                            return @"Div by Zero";
                         } else {
                             result = o2 / o1;
                         }
@@ -172,10 +170,7 @@
         }
     }
     
-    if (error) 
-        return error;
-    else 
-        return [NSNumber numberWithDouble:result];
+    return [NSNumber numberWithDouble:result];
 }
 
 + (void) pushToProgram:(NSMutableArray *)stack object:(id)obj {
