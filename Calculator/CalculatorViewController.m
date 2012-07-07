@@ -13,8 +13,7 @@
 
 @property(nonatomic) BOOL userIsEnteringANumber;
 @property(nonatomic, strong) CalculatorBrain* brain;
-@property(nonatomic, strong) NSString* historyString;
-@property(nonatomic, strong) NSDictionary *variableDict;
+@property(nonatomic, strong) NSDictionary *testVariableValues;
 
 @end
 
@@ -27,8 +26,7 @@
 @synthesize variables = _variables;
 @synthesize userIsEnteringANumber = _userIsEnteringANumber;
 @synthesize brain = _brain;
-@synthesize historyString = _historyString;
-@synthesize variableDict = _variableDict;
+@synthesize testVariableValues = _testVariableValues;
 
 - (void)viewDidLoad
 {
@@ -50,13 +48,6 @@
 }
 
 
-- (NSString*)historyString {
-    if (!_historyString) {
-        _historyString = @"";
-    }
-    return _historyString;
-}
-
 - (CalculatorBrain*) brain 
 {
     if (!_brain) {
@@ -77,9 +68,22 @@
 
 - (void)updateDisplay {
     id program = self.brain.program;
-    self.display.text = [NSString stringWithFormat:@"%g",[CalculatorBrain runProgram:program usingVariableValues:self.variableDict]];
-//    self.historyString = [self.historyString stringByAppendingFormat:@"%@ ", operationString];
+    self.display.text = [NSString stringWithFormat:@"%g",[CalculatorBrain runProgram:program usingVariableValues:self.testVariableValues]];
     self.history.text = [CalculatorBrain descriptionOfProgram:program];
+    NSSet *variablesUsed = [CalculatorBrain variablesUsedInProgram:program];
+    NSString *result;
+    int i = 0;
+    for (NSString *variable in variablesUsed) {
+        NSNumber *value = [self.testVariableValues objectForKey:variable];
+        double val = [value doubleValue];
+        if (i == 0) {
+            result = [NSString stringWithFormat:@"%@ = %g", variable, val];
+        } else {
+            result = [NSString stringWithFormat:@"%@, %@ = %g", result, variable, val];
+        }
+        i++;
+    }
+    self.variables.text = result;
 }
 
 - (IBAction)operationPressed:(UIButton *)sender {
@@ -130,7 +134,7 @@
     self.userIsEnteringANumber = NO;
     self.display.text = @"0";
     self.history.text = @"";
-    self.historyString = @"";
+    self.testVariableValues = nil;
 }
 
 - (IBAction)backspacePressed:(UIButton *)sender {
@@ -172,7 +176,7 @@
 }
 
 - (void)setupVariablesWithX:(double) x andA:(double)a andB:(double) b {
-    self.variableDict = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:x], @"x", [NSNumber numberWithDouble:a], @"a", [NSNumber numberWithDouble:b], @"b", nil];    
+    self.testVariableValues = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:x], @"x", [NSNumber numberWithDouble:a], @"a", [NSNumber numberWithDouble:b], @"b", nil];    
 }
 
 

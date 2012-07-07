@@ -165,6 +165,9 @@
 
         NSString *result = [NSString stringWithFormat:@"%@ %@ %@", o1, topOfStack, o2];
         return result;
+    } else if (topOfStack) {
+        // a variable
+        return topOfStack;
     } else {
         return @"";
     }
