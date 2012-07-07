@@ -29,7 +29,7 @@
 + (NSOrderedSet*)operations {
     static NSOrderedSet *sOperations;
     if (!sOperations) {
-        sOperations = [[NSOrderedSet alloc] initWithObjects:@"π", @"ℯ", @"sin", @"cos", @"log", @"sqrt", @"*", @"/", @"+", @"-", nil];
+        sOperations = [[NSOrderedSet alloc] initWithObjects:@"π", @"+/-", @"ℯ", @"sin", @"cos", @"log", @"sqrt", @"*", @"/", @"+", @"-", nil];
     }
     return sOperations;
 }
@@ -44,6 +44,18 @@
     static NSSet *_nfunctions;
     if (!_nfunctions) _nfunctions = [[NSSet alloc] initWithObjects:@"π", @"ℯ", nil];
     return _nfunctions;    
+}
+
++ (BOOL)isNoOperandFunction:(id)element {
+    return [[self noOperandFunctions] containsObject:element];
+}
+
++ (BOOL)isFunction:(id)element {
+    return [[self functions] containsObject:element];
+}
+
++ (BOOL)isOperation:(id)element {
+    return [[self operations] containsObject:element];
 }
 
 - (void)pushVariable:(NSString *)variable
@@ -67,7 +79,7 @@
     return [self.programStack copy];
 }
 
-- (double) performOperation:(NSString *)operation 
+- (id)performOperation:(NSString *)operation 
 {
     [self.programStack addObject:operation];
     
@@ -78,51 +90,81 @@
 // if the top thing on the passed stack is an operation, evaluate it (recursively)
 // does not crash (but returns 0) if stack contains objects other than NSNumber or NSString
 
-+ (double)popOperandOffProgramStack:(NSMutableArray *)stack usingVariableValues:(NSDictionary *)variableValues
++ (id)popOperandOffProgramStack:(NSMutableArray *)stack usingVariableValues:(NSDictionary *)variableValues
 {
     double result = 0;
+    NSString *error;
     
     id topOfStack = [stack lastObject];
     if (topOfStack) {
         [stack removeLastObject];
+    } else {
+        return @"Missing operand";
     }
     
     if ([topOfStack isKindOfClass:[NSNumber class]]) {
         result = [topOfStack doubleValue];
     } else if ([topOfStack isKindOfClass:[NSString class]]) {
         
-        if ([self.operations containsObject:topOfStack]) {
+        if ([self isOperation:topOfStack]) {
             NSString *operation = topOfStack;
             
-            if ([@"+" isEqualToString:operation]) {
-                result = [self popOperandOffProgramStack:stack usingVariableValues:variableValues] + [self popOperandOffProgramStack:stack usingVariableValues:variableValues];
-            } else if ([@"-" isEqualToString:operation]) {
-                result = - [self popOperandOffProgramStack:stack usingVariableValues:variableValues] + [self popOperandOffProgramStack:stack usingVariableValues:variableValues];
-            } else if ([@"*" isEqualToString:operation]) {
-                result = [self popOperandOffProgramStack:stack usingVariableValues:variableValues] * [self popOperandOffProgramStack:stack usingVariableValues:variableValues];
-            } else if ([@"/" isEqualToString:operation]) {
-                double o1 = [self popOperandOffProgramStack:stack usingVariableValues:variableValues];
-                double o2 = [self popOperandOffProgramStack:stack usingVariableValues:variableValues];
-                // protect against divide by zero
-                if (o1 == 0) {
-                    result = 0;
-                } else {
-                    result = o2 / o1;
-                }
-            } else if ([@"sqrt" isEqualToString:operation]) {
-                result = sqrt([self popOperandOffProgramStack:stack usingVariableValues:variableValues]);
-            } else if ([@"π" isEqualToString:operation]) {
+            if ([@"π" isEqualToString:operation]) {
                 result = M_PI;
-            } else if ([@"sin" isEqualToString:operation]) {
-                result = sin([self popOperandOffProgramStack:stack usingVariableValues:variableValues]);
-            } else if ([@"cos" isEqualToString:operation]) {
-                result = cos([self popOperandOffProgramStack:stack usingVariableValues:variableValues]);
-            } else if ([@"+/-" isEqualToString:operation]) {
-                result = [self popOperandOffProgramStack:stack usingVariableValues:variableValues] * -1;
-            } else if ([@"log" isEqualToString:operation]) {
-                result = log([self popOperandOffProgramStack:stack usingVariableValues:variableValues]);
-            } else if ([@"ℯ" isEqualToString:operation]) {
-                result = exp([self popOperandOffProgramStack:stack usingVariableValues:variableValues]);
+            } else {
+                // all programs require a single operand or more
+                id op1 = [self popOperandOffProgramStack:stack usingVariableValues:variableValues];
+                
+                if (!op1) return @"Missing operand";
+                double o1 = 0;
+                // check for errors in the inner operation for errors
+                if ([op1 isKindOfClass:[NSString class]]) return op1;
+                
+                o1 = [op1 doubleValue];
+                
+                if ([@"ℯ" isEqualToString:operation]) {
+                    result = exp(o1);
+                } else if ([@"sqrt" isEqualToString:operation]) {
+                    if (o1 < 0) return @"sqrt from negative number";
+                    result = sqrt(o1);
+                } else if ([@"sin" isEqualToString:operation]) {
+                    result = sin(o1);
+                } else if ([@"cos" isEqualToString:operation]) {
+                    result = cos(o1);
+                } else if ([@"+/-" isEqualToString:operation]) {
+                    result = o1 * -1;
+                } else if ([@"log" isEqualToString:operation]) {
+                    if (o1 < 0) {
+                        return @"log from neg. number";
+                    }
+                    result = log(o1);
+                } else {
+                    // all following operations require 2 operands
+                    id op2 = [self popOperandOffProgramStack:stack usingVariableValues:variableValues];
+                    if (!op2) return @"Missing operand";
+                    double o2 = 0;
+                    // check for errors in the inner operation for errors
+                    if ([op2 isKindOfClass:[NSString class]]) return op2;
+                    
+                    o2 = [op2 doubleValue];
+                    
+                    // now all of these require 2 operands
+                    if ([@"+" isEqualToString:operation]) {
+                        result = o2 + o1;
+                    } else if ([@"-" isEqualToString:operation]) {
+                        result = o2 - o1;
+                    } else if ([@"*" isEqualToString:operation]) {
+                        result = o2 * o1;
+                    } else if ([@"/" isEqualToString:operation]) {
+                        // protect against divide by zero
+                        if (o1 == 0) {
+                            error = @"Div by Zero";
+                            result = 0;
+                        } else {
+                            result = o2 / o1;
+                        }
+                    }
+                }
             }
         } else {
             // variable case
@@ -130,7 +172,10 @@
         }
     }
     
-    return result;
+    if (error) 
+        return error;
+    else 
+        return [NSNumber numberWithDouble:result];
 }
 
 + (void) pushToProgram:(NSMutableArray *)stack object:(id)obj {
@@ -142,11 +187,11 @@
     if (topOfStack) [stack removeLastObject];
 
     if ([topOfStack isKindOfClass:[NSNumber class]]) return [topOfStack description];
-    else if ([[self noOperandFunctions] containsObject:topOfStack]) {
-            return topOfStack;
-    } else if ([[self functions] containsObject:topOfStack]) {
+    else if ([self isNoOperandFunction:topOfStack]) {
+        return topOfStack;
+    } else if ([self isFunction:topOfStack]) {
         return [NSString stringWithFormat:@"%@(%@)", topOfStack, [self descriptionOfTopOfStack:stack]];
-    } else if ([[self operations] containsObject:topOfStack]) {
+    } else if ([self isOperation:topOfStack]) {
         id peekLeft = [stack lastObject];
         NSString *o2 = [self descriptionOfTopOfStack:stack];
         id peekRight = [stack lastObject];
@@ -185,7 +230,7 @@
     return result;
 }
 
-+ (double) runProgram:(id)program usingVariableValues:(NSDictionary *)variableValues {
++ (NSString *) runProgram:(id)program usingVariableValues:(NSDictionary *)variableValues {
     NSMutableArray *stack;
     
     if ([program isKindOfClass:[NSArray class]]) {
@@ -194,7 +239,7 @@
     return [self.class popOperandOffProgramStack:stack usingVariableValues:variableValues];
 }
 
-+ (double)runProgram:(id)program {
++ (NSString *)runProgram:(id)program {
     return [self runProgram:program usingVariableValues:nil];
 }
 

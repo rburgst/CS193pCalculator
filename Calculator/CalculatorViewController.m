@@ -68,7 +68,7 @@
 
 - (void)updateDisplay {
     id program = self.brain.program;
-    self.display.text = [NSString stringWithFormat:@"%g",[CalculatorBrain runProgram:program usingVariableValues:self.testVariableValues]];
+    self.display.text = [NSString stringWithFormat:@"%@",[CalculatorBrain runProgram:program usingVariableValues:self.testVariableValues]];
     self.history.text = [CalculatorBrain descriptionOfProgram:program];
     NSSet *variablesUsed = [CalculatorBrain variablesUsedInProgram:program];
     NSString *result;
@@ -135,6 +135,7 @@
     self.display.text = @"0";
     self.history.text = @"";
     self.testVariableValues = nil;
+    self.variables.text = @"";
 }
 
 - (IBAction)backspacePressed:(UIButton *)sender {
