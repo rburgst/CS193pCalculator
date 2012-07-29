@@ -8,13 +8,13 @@
 
 #import "CalculatorViewController.h"
 #import "CalculatorBrain.h"
+#import "GraphViewController.h"
 
 @interface CalculatorViewController ()
 
 @property(nonatomic) BOOL userIsEnteringANumber;
 @property(nonatomic, strong) CalculatorBrain* brain;
 @property(nonatomic, strong) NSDictionary *testVariableValues;
-
 @end
 
 
@@ -44,7 +44,7 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+    return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
 
@@ -183,9 +183,28 @@
     [self updateDisplay];
 }
 
+- (IBAction)graphPressed:(UIButton *)sender {
+    [self graphViewController].calculatorProgram = self.brain.program;
+}
+
 - (void)setupVariablesWithX:(double) x andA:(double)a andB:(double) b {
     self.testVariableValues = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:x], @"x", [NSNumber numberWithDouble:a], @"a", [NSNumber numberWithDouble:b], @"b", nil];    
 }
 
+
+-(void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if ([segue.identifier isEqualToString:@"graph"]) {
+        GraphViewController *gvc = segue.destinationViewController;
+        gvc.calculatorProgram = self.brain.program;
+    }
+}
+
+-(GraphViewController*)graphViewController {
+    id gvc = [self.splitViewController.viewControllers lastObject];
+    if (![gvc isKindOfClass:[GraphViewController class]]) {
+        gvc = nil;
+    }
+    return gvc;
+}
 
 @end
